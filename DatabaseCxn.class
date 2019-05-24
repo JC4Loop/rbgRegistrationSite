@@ -1,0 +1,334 @@
+<?php
+	require_once("User.class");
+	require_once("Rate.class");
+	class DatabaseCxn {
+		private $cxn;
+
+		private static function getConnection(){
+			$hostname = "localhost";
+	    	$databaseName = "rbgsite";      
+			$username = "siu";        // select insert update      
+			$password = "appletree";
+			$cxn = mysqli_connect($hostname, $username, $password, $databaseName) or die ("message");
+			return $cxn;
+		}
+
+		public static function getUserIDFromUName($uName){
+			$cxn = DatabaseCxn::getConnection();
+			$un = mysqli_escape_string($cxn,$uName);
+			$result = mysqli_query($cxn,"SELECT uID FROM Users WHERE UserName = '".$un."'");
+			if (mysqli_num_rows($result) == 1){
+				$row = mysqli_fetch_array($result);
+				$uID = $row["uID"];
+			} else {
+				echo "Error in getUserIDFromUName! --- zero or more than one row returned for username";
+			}
+			return $uID;
+		}
+
+		public static function userLogin($uName,$pass){
+			$cxn = DatabaseCxn::getConnection();
+			$returnValue = 0;
+			$un = mysqli_escape_string($cxn,$uName);
+			$result = mysqli_query($cxn, "SELECT * FROM Users WHERE UserName = '" . $un ."'");
+			if (mysqli_num_rows($result) == 0){	
+				// result 1
+				$returnValue = 1; // no such user
+			} else {
+				$row = mysqli_fetch_array($result);
+				if ($row['Password'] == $pass){
+					// username and password match
+					if($row['Verified'] == 1){
+					//result 2
+						$returnValue = 2;
+					} else {
+					// result 3
+					// not yet verified.
+						$returnValue = 3;
+					}
+				} else {
+					// result 4 // incorrect password
+					$returnValue = 4;
+				}
+			}
+			return $returnValue;
+		}
+
+		public static function isUserNameTaken($userName){
+			$cxn = DatabaseCxn::getConnection();
+			//No need for escape string here as user input is not placed in sql string
+			$result = mysqli_query($cxn,"SELECT UserName FROM Users");
+			$duplicate = false;
+			while ($row=mysqli_fetch_array($result))
+				{
+					if($row['UserName'] == $userName){
+						$duplicate = true;
+						break;
+					} 
+				}
+			return $duplicate;
+		}
+
+		public static function createNewUser($uName,$cPass,$email,$vCode){
+			$cxn = DatabaseCxn::getConnection();
+			$un = mysqli_escape_string($cxn,$uName);
+			$cp = mysqli_escape_string($cxn,$cPass);
+			$em = mysqli_escape_string($cxn,$email);
+			// vCode for this function is not user input
+			$sqlInsert = "INSERT INTO  Users (UserName, Password, email, VCode, Verified)
+						VALUES ('$un', '$cp', '$em', $vCode, 0)";
+
+				if (mysqli_query($cxn,$sqlInsert)) {
+					echo "New record created successfully <br />";
+				} else {
+					echo "Error: " . $sqlInsert . "<br />" . mysqli_error($cxn);
+				}
+
+				mysqli_close($cxn);
+		}
+
+		//vulnurable - escape string not used
+		public static function getCustomSingle($sql){
+			$cxn = DatabaseCxn::getConnection();
+			$result = mysqli_query($cxn,$sql);
+			return $result;
+		}
+
+		public static function updateUserDetails($uID,$fName,$sName,$gen,$phone,$pc1,$pc2,$sType,$sum,$avg){
+			$cxn = DatabaseCxn::getConnection();
+			
+			// uID is not input from user
+			$esc_fn = mysqli_escape_string($cxn,$fName);
+			$esc_sn = mysqli_escape_string($cxn,$sName);
+			//gender is from user selection not input
+			$esc_phone = mysqli_escape_string($cxn,$phone);
+			$esc_pc1 = mysqli_escape_string($cxn,$pc1);
+			$esc_pc2 = mysqli_escape_string($cxn,$pc2);
+			$esc_sType = mysqli_escape_string($cxn,$sType);
+			$esc_summ = mysqli_escape_string($cxn,$sum);
+			$esc_avg = mysqli_escape_string($cxn,$avg);
+
+			$updateQuery = "UPDATE userdetails SET firstName ='".$esc_fn."'
+											, surname='".$esc_sn."'
+											, gender ='".$gen."'
+											, sitterType='".$esc_sType."'
+											, summary='".$esc_summ."'
+											, avgpph=".$esc_avg."
+											, PostCode1='".$esc_pc1."'
+											, PostCode2='".$esc_pc2."'
+											, PhoneNum='".$esc_phone."'
+								WHERE uID=".$uID;
+
+			if (mysqli_query($cxn,$updateQuery)) {
+				mysqli_close($cxn);
+				return true;
+			} else {
+				echo "Error: " . $updateQuery. "<br />" . mysqli_error($cxn);
+				mysqli_close($cxn);
+				return false;
+			}
+		}
+		
+		public static function getUserDetails($user) {
+			$cxn = DatabaseCxn::getConnection();
+			$result = mysqli_query($cxn,"SELECT * FROM userdetails WHERE uID = ".$user->getID());
+			if (mysqli_num_rows($result) >= 1)
+			{	
+				$row = mysqli_fetch_array($result);
+				$fn = $row['firstName'];
+				$sn = $row['surName'];
+				$g = $row['gender'];
+				$st = $row['sitterType'];
+				$smry = $row['summary'];
+				$pph = $row['avgpph'];
+			
+				$a = $row['availability'];
+				
+				$pc1 = $row['PostCode1'];
+				$pc2 = $row['PostCode2'];
+				$pn = $row['PhoneNum'];
+				$user->setDetails($fn,$sn,$g,$st,$smry,$pph,$a,$pc1,$pc2,$pn);
+			} 
+			return $user;
+		}
+
+		public static function getUserRates($user){
+			$cxn = DatabaseCxn::getConnection();
+			$result = mysqli_query($cxn,"SELECT * FROM rates WHERE uID = ".$user->getID(). " AND toBeDeleted = 0");
+			$rates = array();
+			if ( mysqli_num_rows($result) > 0 ) {
+				while ($row = mysqli_fetch_array($result)) {
+					$rID = $row['rateID'];
+					$uID = $row['uID'];
+					$hours = $row['hours'];
+					$price = $row['price'];
+					$rateObj = new Rate($rID,$uID,$hours,$price);
+					array_push($rates, $rateObj);
+				}
+				$sortedRates = Rate::sortRatesByHour($rates);
+				return $sortedRates;
+			} else {
+				return null;
+			}
+		}
+
+
+		public static function storeImagePN($id,$imagePN,$iFileType){
+			$cxn = DatabaseCxn::getConnection();
+			$sqlInsert = "INSERT INTO  UserImages (uID, iPath, iType)
+						VALUES ($id, '".$imagePN.',"'.$iFileType.'")';
+			if (mysqli_query($cxn,$sqlInsert)) {
+				mysqli_close($cxn);
+				return true;
+			} else {
+				echo "Error: " . $sql . "<br>" . mysqli_error($cxn);
+				mysqli_close($cxn);
+				return false;
+			}
+		}
+
+		public static function getImages($id){
+			$cxn = DatabaseCxn::getConnection();
+			$sql = "SELECT * FROM UserImages WHERE uID = $id";
+			$result = mysqli_query($cxn,$sql);
+			$images = array();
+			if (mysqli_num_rows($result) >= 1)
+			{	
+				while ($row = mysqli_fetch_row($result)) {
+					//array_push($images, $row['iPath']);
+					array_push($images,$row[1]);
+				}
+			} else {
+				$images[0] = false;
+			}
+			return $images;
+		}
+		
+		public static function updateAvailability($uID, $availData){
+			// serialized data is selected not input from user
+			$cxn = DatabaseCxn::getConnection();
+			$serialized_data = serialize($availData);
+			$sql = "UPDATE userdetails SET availability ='".$serialized_data."' WHERE uID=".$uID;
+			if (mysqli_query($cxn,$sql)) {
+				mysqli_close($cxn);
+				return true;
+			} else {
+				echo "Error: " . $sql . "<br>" . mysqli_error($cxn);
+				mysqli_close($cxn);
+				return false;
+			}
+		}
+
+		public static function addRate($uID,$rateData){
+			$cxn = DatabaseCxn::getConnection();
+			$hour = mysqli_escape_string($cxn,$rateData["hour"]);
+			$price = mysqli_escape_string($cxn,$rateData["price"]);
+			$insertQuery = "INSERT INTO Rates (uID,hours,price)
+							VALUES ($uID, $hour,$price)";
+
+			if (mysqli_query($cxn,$insertQuery)) {
+				mysqli_close($cxn);
+				return true;
+			} else {
+				echo "Error: " . $insertQuery. "<br />" . mysqli_error($cxn);
+				mysqli_close($cxn);
+				return false;
+			}
+		}
+
+
+		public static function updateRate($rateData){
+			$cxn = DatabaseCxn::getConnection();
+			$rateID = $rateData["rateID"];
+			$price = mysqli_escape_string($cxn,$rateData["price"]);
+			$updateQuery = "UPDATE Rates SET price = $price WHERE rateID = $rateID";
+			if (mysqli_query($cxn,$updateQuery)){
+				mysqli_close($cxn);
+				return true;
+			} else {
+				echo "Error: " . $updateQuery . "<br />" .mysqli_error($cxn);
+				mysqli_close($cxn);
+				return false;
+			}
+			
+		}
+
+		// db account does not have permission to delete so mark for deletion.
+		// row can be deleted from administrator software.
+		public static function setRateToBeDeleted($rateData){
+			$cxn = DatabaseCxn::getConnection();
+			$rateID = $rateData["rateID"];
+			$today =  "". date("Y-m-d"); // automatic data - no user input
+			$updateQuery = "UPDATE rates SET toBeDeleted = 1, tbdDateReq = '".$today."' WHERE rateID = $rateID";
+			if (mysqli_query($cxn,$updateQuery)){
+				mysqli_close($cxn);
+				return true;
+			} else {
+				echo "Error: " .$updateQuery. "<br />" .mysqli_error($cxn);
+				mysqli_close($cxn);
+				return false;
+			}
+		}
+
+		// no user input - no need for mysqli_escape_string
+		public static function getAllVerifiedUsers(){
+			$cxn = DatabaseCxn::getConnection();
+			$result = mysqli_query($cxn,"SELECT sname, users.uid, firstName, surname, gender,
+				 PostCode1, Postcode2, PhoneNum, avgpph, Verified 
+				 FROM userdetails LEFT JOIN stype
+				 ON userdetails.sittertype = stype.typeID
+				 LEFT JOIN users ON userdetails.uid = users.uID
+				 WHERE Verified = 1
+				 ORDER BY userdetails.uid");
+			$allSitters = array();
+			if ( mysqli_num_rows($result) > 0 ) {
+				while ($row = mysqli_fetch_array($result)) {
+					$uID = $row['uid'];
+					$sitterType = $row['sname'];
+					$fName = $row['firstName'];
+					$sName = $row['surname'];
+					$gender = $row['gender'];
+					$postcode1 = $row['PostCode1'];
+					$Postcode2 = $row['Postcode2'];
+					$phoneNum = $row['PhoneNum'];
+					$avgpph = $row['avgpph'];
+					$sitterObj = new User($uID,"unknown");
+					$sitterObj->setDetails($fName,$sName,$gender,$sitterType,"",$avgpph,"",$postcode1,$Postcode2,$phoneNum);
+							 //setDetails($fn,	 $sn,	$g,		$st,	$smry,	$pph,  $a,$postcode1,$pc2,		$pn);
+					array_push($allSitters, $sitterObj);
+				}
+				
+				return $allSitters;
+			} else {
+				return null;
+			}
+		}
+
+		public static function getSitterData($uID){
+			$cxn = DatabaseCxn::getConnection();
+			$result = mysqli_query($cxn,"SELECT firstName, surName, sName, gender, summary, availability, email,PhoneNum, PostCode1,PostCode2 
+				FROM users
+				INNER JOIN userdetails 	ON users.uid = userdetails.uid
+				INNER JOIN sType 	ON userdetails.sittertype = stype.typeid
+				WHERE Verified = 1 AND users.uid =". $uID);
+			if (mysqli_num_rows($result) >= 1){
+				$row = mysqli_fetch_array($result);
+
+				$sitter = array("firstName"		=>$row['firstName'],
+				 				"surName"		=>$row['surName'],
+				 				"gender"		=>$row['gender'],
+				 				"sitterType"	=>$row['sName'],
+				 				"summary"		=>$row['summary'],
+				 				"availability"	=>$row['availability'],
+				 				"PC1"			=>$row['PostCode1'],
+				 				"PC2"			=>$row['PostCode2'],
+				 				"email"			=>$row['email'],
+				 				"PhoneNum"		=>$row['PhoneNum']);
+			} else {
+				$sitter = array("firstName"=>"Problem");
+			}
+			return $sitter;
+		}
+
+	}
+?>

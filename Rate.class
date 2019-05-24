@@ -1,0 +1,40 @@
+<?php
+class Rate{
+	private $rateID;
+	private $userID;
+	private $hours;
+	private $price;
+
+	function __construct($rId,$uId,$h,$p){
+		$this->rateID = $rId;
+		$this->userID = $uId;
+		$this->hours = $h;
+		$this->price = $p;
+	}
+
+	function getRateID(){
+		return $this->rateID;
+	}
+
+	function getHours(){
+		return $this->hours;
+	}
+
+	function getPrice(){
+		return $this->price;
+	}
+
+
+	static function sortRatesByHour($rates){
+		usort($rates, function($a,$b){
+			if ($a->hours == $b->hours) {
+        		return 0;
+    		}
+    		return ($a->hours < $b->hours) ? -1 : 1;
+		});
+		return $rates;
+	}
+	
+	
+}
+?>

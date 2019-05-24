@@ -1,0 +1,101 @@
+<?php
+	class User {
+		private $ID;
+		private $username;
+		public $firsname;
+		public $surname;
+		public $gender;
+		public $sitterType;
+		public $summary;
+		public $avgpricePerHour;
+		public $availability;
+		public $postCode1;
+		public $postCode2;
+		public $phoneNumber;
+		public $rates; // array of rate objects
+
+		function __construct($uid, $un){
+			$this->ID = $uid;
+			$this->username = $un;
+		}
+
+		function getID() {
+			return $this->ID;
+		}
+
+		function getUserName() {
+			return $this->username;
+		}
+
+		function getDetails(){
+			DatabaseCxn::getUserDetails($this); // this will lead to setDetails being run
+			
+
+			//$_SESSION['user'] = $this; // update the session with new updated details
+		}
+
+		function setDetails($fn,$sn,$g,$st,$smry,$pph,$a,$pc1,$pc2,$pn){
+			$this->firstname = $fn;
+			$this->surname = $sn;
+			$this->gender = $g;
+			$this->sitterType = $st;
+			$this->summary = $smry;
+			$this->avgpricePerHour = $pph;
+			$this->postCode1 = $pc1;
+			$this->postCode2 = $pc2;
+			$this->phoneNumber = $pn;
+			if(($a !== null) || ($a !== "")){ // if availability is set in db, unserialize
+				$this->availability = unserialize($a);
+			}
+			$this->rates = DatabaseCxn::getUserRates($this);
+		}
+
+
+		function addImageToDb($imagePN,$iFileType){  
+			$success = DatabaseCxn::storeImagePN($this->ID,$imagePN,$iFileType);
+			return $success;
+		}
+
+		function receiveImages(){
+			$images = DatabaseCxn::getImages($this->ID);
+			return $images;
+		}
+
+
+
+		function updateAvailability($availData){
+			if (DatabaseCxn::updateAvailability($this->ID, $availData)){
+				$this->availability = $availData;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function addRate($rateData){
+			if (DatabaseCxn::addRate($this->ID,$rateData)){
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function updateRate($rateData){
+			if (DatabaseCxn::updateRate($rateData)){
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function deleteRate($rateData){
+			//$rateID = $rateData["rateID"];
+			if (DatabaseCxn::setRateToBeDeleted($rateData)){
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+	}
+?>
