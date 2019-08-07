@@ -1,0 +1,117 @@
+-- MySQL dump 10.16  Distrib 10.1.30-MariaDB, for Win32 (AMD64)
+--
+-- Host: localhost    Database: sitterdata
+-- ------------------------------------------------------
+-- Server version	10.1.30-MariaDB
+
+CREATE DATABASE IF NOT EXISTS sitterdata;
+USE sitterdata;
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `rates`
+--
+
+DROP TABLE IF EXISTS `rates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rates` (
+  `rateID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `sitterID` smallint(5) unsigned NOT NULL,
+  `hours` tinyint(3) unsigned DEFAULT NULL,
+  `price` smallint(5) unsigned NOT NULL,
+  PRIMARY KEY (`rateID`),
+  KEY `sitterID` (`sitterID`),
+  CONSTRAINT `rates_ibfk_1` FOREIGN KEY (`sitterID`) REFERENCES `sitters` (`sitterID`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rates`
+--
+
+LOCK TABLES `rates` WRITE;
+/*!40000 ALTER TABLE `rates` DISABLE KEYS */;
+INSERT INTO `rates` VALUES (1,3,1,60),(2,3,2,100),(3,3,3,140),(4,3,4,170),(5,3,5,190),(6,12,1,80),(7,12,2,110),(8,12,3,130),(9,12,4,145),(10,12,5,160),(11,6,1,20),(12,6,2,35),(13,9,1,30),(14,9,2,40),(15,11,1,20),(16,11,2,30),(17,5,1,20),(18,5,2,35),(19,10,1,20),(20,10,2,35),(21,4,1,30),(22,4,2,40),(23,8,1,30),(24,8,2,50),(25,8,3,70),(26,7,1,50),(27,7,2,80),(28,7,3,100),(29,7,4,120),(30,7,5,140),(31,7,6,160);
+/*!40000 ALTER TABLE `rates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sitters`
+--
+
+DROP TABLE IF EXISTS `sitters`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sitters` (
+  `sitterID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `firstname` varchar(20) NOT NULL,
+  `surname` varchar(20) NOT NULL,
+  `stypeID` smallint(5) unsigned NOT NULL,
+  `gender` enum('M','F') DEFAULT NULL,
+  `Borough` set('Greenwich','Lewisham','Bromley') NOT NULL,
+  `number` varchar(11) DEFAULT NULL,
+  `email` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`sitterID`),
+  UNIQUE KEY `sitterID` (`sitterID`),
+  KEY `stypeID` (`stypeID`),
+  CONSTRAINT `sitters_ibfk_1` FOREIGN KEY (`stypeID`) REFERENCES `stype` (`typeID`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sitters`
+--
+
+LOCK TABLES `sitters` WRITE;
+/*!40000 ALTER TABLE `sitters` DISABLE KEYS */;
+INSERT INTO `sitters` VALUES (3,'Marge','Simpson',6,'F','Greenwich','7509889555','Marge_Simpson@gmail.com'),(4,'Bart','Simpson',3,'M','Greenwich','7849555022','Bart_Simpson@gmail.com'),(5,'Barney','Gumble',4,'M','Greenwich','7944881825','BarneyGum@gmail.com'),(6,'Homer','Simpson',5,'M','Greenwich','7833774001','H.SimpDonut@gmail.com'),(7,'Lisa','Simpson',1,'F','Greenwich','7749387207','Lisa_Simpson@gmail.com'),(8,'Patty','Smith',2,'F','Greenwich','7988101273','Patty.rlSmith@hotmail.com'),(9,'Moe','Sizlack',5,'M','Greenwich','7728477264','Mo.Sck@hotmail.com'),(10,'Stan','Marsh',3,'M','Greenwich','19928333005','StanlyMarsh@googlemail.com'),(11,'Kenny','McKormick',4,'M','Greenwich','7737444812','Kenny93@gmail.com'),(12,'Audrey','Griffin',6,'F','Greenwich','7919222045','AGriffin85@gmail.com');
+/*!40000 ALTER TABLE `sitters` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `stype`
+--
+
+DROP TABLE IF EXISTS `stype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stype` (
+  `typeID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `sName` varchar(20) NOT NULL,
+  `Description` varchar(255) NOT NULL,
+  PRIMARY KEY (`typeID`),
+  UNIQUE KEY `typeID` (`typeID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `stype`
+--
+
+LOCK TABLES `stype` WRITE;
+/*!40000 ALTER TABLE `stype` DISABLE KEYS */;
+INSERT INTO `stype` VALUES (1,'House Sitter','Will look after your home, water flowers,\n		check doors and windows are locked'),(2,'Babysitter','Will care for your baby or / and child, prepare meals, feed, nappy changing'),(3,'Plantsitter','Water your plants, not required to perform other tasks as a housesitter'),(4,'Catsitter','Take care of your cat, feeding'),(5,'Dogwalker','Will walk your dog'),(6,'Carer','Will care for someone needing assistance, Preparing meals, feeding, bathing');
+/*!40000 ALTER TABLE `stype` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2019-08-07 11:27:13
