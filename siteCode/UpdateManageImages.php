@@ -199,7 +199,7 @@ img.hover-shadow {
 				$c = 0;
 				$cTwo = 0;
 				foreach ($images as $i) {
-					$dir = "../rbgSitterSite/uImageUploads/";
+					$dir = "uImageUploads/";
 					if (($c % 4) == 0){ 
 						echo '<div class="row">' . "\n";
 					}
