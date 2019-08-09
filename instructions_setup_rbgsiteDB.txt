@@ -1,0 +1,18 @@
+	Instructions to setup mysql database
+
+1. Copy 'bkupDb_rbgsite' in to mysql/bin folder
+
+2. In command prompt, in mysql/bin directory e.g. C:\xampp\mysql\bin>
+	run : mysql -u root -p < bkupDb_rbgsite
+
+	enter password and database will be created
+	doesn't have to be root directory as long as user has required privileges
+
+3. Whilst logged in to mysql shell as user with required privileges:
+	
+	CREATE USER 'siu'@'localhost' IDENTIFIED BY 'appletree';
+
+	GRANT SELECT,INSERT,UPDATE on rbgsite.* TO 'siu'@'localhost';
+
+	FLUSH PRIVILEGES;
+	
