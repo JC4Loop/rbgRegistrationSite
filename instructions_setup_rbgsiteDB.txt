@@ -6,7 +6,7 @@
 	run : mysql -u root -p < bkupDb_rbgsite
 
 	enter password and database will be created
-	doesn't have to be root directory as long as user has required privileges
+	doesn't have to be root user as long as user has required privileges
 
 3. Whilst logged in to mysql shell as user with required privileges:
 	
