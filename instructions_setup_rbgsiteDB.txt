@@ -2,17 +2,16 @@
 
 1. Copy 'bkupDb_rbgsite' in to mysql/bin folder
 
-2. In command prompt, in mysql/bin directory e.g. C:\xampp\mysql\bin>
-	run : mysql -u root -p < bkupDb_rbgsite
+In command prompt, mysql shell whilst logged in as use with required privileges e.g root
 
-	enter password and database will be created
-	doesn't have to be root user as long as user has required privileges
+2. 	CREATE DATABASE rbgsite
 
-3. Whilst logged in to mysql shell as user with required privileges:
+3.	USE rbgsite 	- to select database to which will have data created for
 	
-	CREATE USER 'siu'@'localhost' IDENTIFIED BY 'appletree';
+	SOURCE bkupDb_rbgsite;
+
+4.	CREATE USER 'siu'@'localhost' IDENTIFIED BY 'appletree';
 
 	GRANT SELECT,INSERT,UPDATE on rbgsite.* TO 'siu'@'localhost';
 
-	FLUSH PRIVILEGES;
-	
+	FLUSH PRIVILEGES;	

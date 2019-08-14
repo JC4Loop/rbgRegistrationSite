@@ -1,16 +1,13 @@
--- MySQL dump 10.16  Distrib 10.1.30-MariaDB, for Win32 (AMD64)
+-- MySQL dump 10.17  Distrib 10.3.16-MariaDB, for Win64 (AMD64)
 --
 -- Host: localhost    Database: rbgsite
 -- ------------------------------------------------------
--- Server version	10.1.30-MariaDB
-
-CREATE DATABASE IF NOT EXISTS rbgsite;
-USE rbgsite;
+-- Server version	10.3.16-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -30,7 +27,7 @@ CREATE TABLE `rates` (
   `uID` smallint(5) unsigned NOT NULL,
   `hours` smallint(5) unsigned NOT NULL,
   `price` smallint(5) unsigned NOT NULL,
-  `toBeDeleted` tinyint(4) NOT NULL DEFAULT '0',
+  `toBeDeleted` tinyint(4) NOT NULL DEFAULT 0,
   `tbdDateReq` date DEFAULT NULL,
   PRIMARY KEY (`rateID`),
   KEY `uID` (`uID`),
@@ -89,10 +86,10 @@ CREATE TABLE `userdetails` (
   `sitterType` enum('1','2','3','4','5','6','7','8') DEFAULT NULL,
   `summary` varchar(1000) DEFAULT NULL,
   `avgpph` decimal(5,2) DEFAULT NULL,
-  `availability` mediumblob,
+  `availability` mediumblob DEFAULT NULL,
   `PostCode1` varchar(4) DEFAULT NULL,
   `PostCode2` varchar(3) DEFAULT NULL,
-  `rates` mediumblob,
+  `rates` mediumblob DEFAULT NULL,
   `PhoneNum` varchar(11) DEFAULT NULL,
   PRIMARY KEY (`uID`),
   CONSTRAINT `userdetails_ibfk_1` FOREIGN KEY (`uID`) REFERENCES `users` (`uID`)
@@ -148,7 +145,7 @@ CREATE TABLE `users` (
   `Password` varchar(200) DEFAULT NULL,
   `email` varchar(40) NOT NULL,
   `VCode` varchar(10) NOT NULL,
-  `Verified` tinyint(4) DEFAULT '0',
+  `Verified` tinyint(4) DEFAULT 0,
   UNIQUE KEY `uID` (`uID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -172,4 +169,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-24 13:17:06
+-- Dump completed on 2019-08-14 10:11:30
