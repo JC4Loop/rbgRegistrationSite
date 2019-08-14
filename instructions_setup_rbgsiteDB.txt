@@ -2,11 +2,11 @@
 
 1. Copy 'bkupDb_rbgsite' in to mysql/bin folder
 
-In command prompt, mysql shell whilst logged in as use with required privileges e.g root
+In command prompt, mysql shell whilst logged in as user with required privileges e.g root
 
 2. 	CREATE DATABASE rbgsite
 
-3.	USE rbgsite 	- to select database to which will have data created for
+3.	USE rbgsite 	- to select database for which data will be added to
 	
 	SOURCE bkupDb_rbgsite;
 
