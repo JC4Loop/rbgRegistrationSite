@@ -31,6 +31,7 @@ The login page for registered users.\
 If the user has not yet verified their account they will be taken to the verification page.
 
 ![screenshot](/screenshots/loginSS.png)
+Username : ab123		password: pass
 
 #### Login Success
 Where the user is directed to after having logged in successfully.\
