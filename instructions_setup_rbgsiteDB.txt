@@ -10,8 +10,18 @@ In command prompt, mysql shell whilst logged in as user with required privileges
 	
 	SOURCE bkupDb_rbgsite;
 
-4.	CREATE USER 'siu'@'localhost' IDENTIFIED BY 'appletree';
+4.	exit mysql shell and within mysql/bin folder
+	
+	mysql_upgrade
+
+Back In mysql shell (command prompt)
+
+5.	CREATE USER 'siu'@'localhost' IDENTIFIED BY 'appletree';
 
 	GRANT SELECT,INSERT,UPDATE on rbgsite.* TO 'siu'@'localhost';
 
-	FLUSH PRIVILEGES;	
+	FLUSH PRIVILEGES;
+
+6*	If access is denied when attempting to connect to the mysql shell after exit:
+	
+	mysql_upgrade --force
